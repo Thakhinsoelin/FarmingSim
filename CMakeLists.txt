@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.24...3.30)
-project(raylib-game-template)
+project(raylib_game_template LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
@@ -12,11 +15,74 @@ set(RAYLIB_VERSION 5.5)
 FetchContent_Declare(
     raylib
     DOWNLOAD_EXTRACT_TIMESTAMP OFF
-    URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG 5.5
+    GIT_SHALLOW TRUE
     FIND_PACKAGE_ARGS
 )
 
 FetchContent_MakeAvailable(raylib)
+
+include(FetchContent)
+
+# -------------------------
+# Dear ImGui
+# -------------------------
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG docking
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(imgui)
+
+add_library(imgui_lib
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+)
+
+target_include_directories(imgui_lib PUBLIC
+    ${imgui_SOURCE_DIR}
+)
+
+# -------------------------
+# rlImGui
+# -------------------------
+FetchContent_Declare(
+    rlimgui
+    GIT_REPOSITORY https://github.com/raylib-extras/rlImGui.git
+    GIT_TAG main
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(rlimgui)
+
+add_library(rlimgui_lib
+    ${rlimgui_SOURCE_DIR}/rlImGui.cpp
+)
+
+target_include_directories(rlimgui_lib PUBLIC
+    ${rlimgui_SOURCE_DIR}
+)
+
+target_link_libraries(rlimgui_lib
+    raylib
+    imgui_lib
+)
+
+set_source_files_properties(
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    external/rlImGui/rlImGui.cpp
+    PROPERTIES LANGUAGE CXX
+)
+
+
 
 # Our Project
 add_executable(${PROJECT_NAME})
@@ -41,8 +107,16 @@ else()
     #DEPENDS ${PROJECT_NAME}
 endif()
 
+target_include_directories(${PROJECT_NAME} 
+    PRIVATE
+        ${imgui_SOURCE_DIR}     # for imgui.h
+        ${rlimgui_SOURCE_DIR}   # for rlImGui.h
+)
 #set(raylib_VERBOSE 1)
-target_link_libraries(${PROJECT_NAME} raylib)
+target_link_libraries(${PROJECT_NAME} 
+    raylib
+    rlimgui_lib
+    imgui_lib)
 
 # Web Configurations
 if ("${PLATFORM}" STREQUAL "Web")

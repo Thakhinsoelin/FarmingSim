@@ -51,6 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+build_ninja
 # Visual Studio files
 [Dd]ebug/
 [Dd]ebug.DLL/
