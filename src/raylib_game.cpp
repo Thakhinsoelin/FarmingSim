@@ -39,11 +39,16 @@ int main(void)
 
     int frameCount = 4;
 
-
     int currentFrame = 0;
     int frameCounter = 0;
     int frameSpeed = 8;
     
+    Texture2D grass_temp = LoadTexture("resources/sprites/Tilesets/Grass.png");
+    const int grassWidth = 176/11;
+    const int grassHeight = 112/7;
+    Rectangle grass = { 0, grassHeight*6, grassWidth, grassHeight};
+    Vector2 grassPosition = {0,0};
+
     Camera2D camera = { 0 };
     camera.target = position; // Camera will follow this point (e.g., player position)
     camera.offset = { screenWidth/2, screenHeight/2 };  // Camera view position (center of the screen)
@@ -76,10 +81,10 @@ int main(void)
     
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-      float dt = GetFrameTime();
+        float dt = GetFrameTime();
         // Zoom based on mouse wheel
         float wheel = GetMouseWheelMove();
-      Vector2 movement = {0, 0};
+        Vector2 movement = {0, 0};
         if (!isImGuiHovered && IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
             Vector2 delta = GetMouseDelta();
@@ -169,8 +174,25 @@ int main(void)
         BeginDrawing();
         ClearBackground(RAYWHITE);
         
+        // // Check if the player is out of bounds in X or Y
+        // if (position.x < camera.target.x - screenWidth/2 || position.x > camera.target.x + screenWidth/2 ||
+        //     position.y < camera.target.y - screenHeight/2 || position.y > camera.target.y + screenHeight/2)
+        // {
+        //     // Retarget the camera to the middle of the player
+        //     camera.target = position;
+        // }
+
         BeginMode2D(camera);
         // DrawTextureEx(texture, 50, 50, );
+        for (int i = 0; i < screenWidth; i += grassWidth) {
+            for (int j = 0; j < screenHeight; j += grassHeight) {
+                grassPosition.y = j;
+                grassPosition.x = i;
+                DrawTextureRec(grass_temp, grass, grassPosition, WHITE);
+                
+            }
+            
+        }
         DrawTextureRec(texture, walk, position, WHITE);
         // DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 
@@ -180,7 +202,7 @@ int main(void)
         ImGui::Begin("Debug");
         isImGuiHovered = ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered();
         ImGui::Text("ImGui is working!");
-        ImGui::SliderInt("frameSpeed", &frameSpeed, 1, 120);
+        ImGui::SliderInt("frameSpeed", &frameSpeed, 1, 20);
         ImGui::SliderFloat("movementSpeed", &tempSpeed, 0.f, 6.f);
         ImGui::End();
         rlImGuiEnd();
