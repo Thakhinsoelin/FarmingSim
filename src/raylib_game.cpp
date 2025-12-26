@@ -3,20 +3,15 @@
 #include "imgui.h"    // NOTE: Declares global (extern) variables and screens functions
 #include "raymath.h"
 #include <math.h>
+
+#define RINI_IMPLEMENTATION
+#include "rini.h"
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
 #endif
-
-//----------------------------------------------------------------------------------
-// Shared Variables Definition (global)
-// NOTE: Those variables are shared between modules through screens.h
-//----------------------------------------------------------------------------------
-
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-// #define SPRITE_DIM 192/4
-
 static const float screenWidth = 800;
 static const float screenHeight = 450;
 static const float SPRITE_DIM = 192/4;
@@ -33,14 +28,15 @@ int main(void)
     // Initialization
     //---------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib game template");
-    // rlImguiSetup(true);
     rlImGuiSetup(true);
     
     SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
 
     Texture2D texture = LoadTexture("resources/sprites/Characters/walk.png");
-    Rectangle walk_front = {0,0,SPRITE_DIM, SPRITE_DIM};
+    Rectangle walk = {0,0,SPRITE_DIM, SPRITE_DIM};
     Vector2 position = {screenWidth/2 - SPRITE_DIM/2, screenHeight/2 - SPRITE_DIM/2};
+    float tempSpeed = 5.f;
+
     int frameCount = 4;
 
 
@@ -54,8 +50,18 @@ int main(void)
     camera.rotation = 0.0f;                 // No rotation
     camera.zoom = 1.0f;  
     
+    rini_data config = rini_load(NULL);
+    if (FileExists("config.ini")) {
+      config = rini_load("config.ini");
+      const char* temp = rini_get_value_text(config, "frameSpeed");
+      frameSpeed = atoi(temp);
+      printf("%d\n", frameSpeed);
 
-    // Load animation
+      const char *temp2 = rini_get_value_text(config, "movementSpeed");
+      tempSpeed = atof(temp2);
+    } else {
+      config = rini_load(NULL);
+    }
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -65,12 +71,15 @@ int main(void)
     bool isImGuiHovered = true;
     bool isMoving = false;
     // Main game loop
+
+    
+    
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        
+      float dt = GetFrameTime();
         // Zoom based on mouse wheel
         float wheel = GetMouseWheelMove();
-        Vector2 movement = {0,0};
+      Vector2 movement = {0, 0};
         if (!isImGuiHovered && IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
             Vector2 delta = GetMouseDelta();
@@ -97,10 +106,26 @@ int main(void)
             
         }
         
-        if (IsKeyDown(KEY_W)) movement.y -= 1;
-        if (IsKeyDown(KEY_S)) movement.y += 1;
-        if (IsKeyDown(KEY_A)) movement.x -= 1;
-        if (IsKeyDown(KEY_D)) movement.x += 1;
+        if (IsKeyDown(KEY_W)) 
+        {
+          movement.y -= 1 * dt;
+          walk.y = SPRITE_DIM;
+        }
+        if (IsKeyDown(KEY_S)) 
+        {
+          movement.y += 1 * dt;
+          walk.y = 0;
+        }
+        if (IsKeyDown(KEY_A)) 
+        {
+          movement.x -= 1 * dt;
+          walk.y = SPRITE_DIM*2;
+        }
+        if (IsKeyDown(KEY_D)) 
+        {
+          movement.x += 1 * dt;
+          walk.y = SPRITE_DIM * 3;
+        }
 
         // Normalize movement vector to maintain constant speed (diagonal movement)
         if (movement.x != 0 || movement.y != 0)
@@ -114,8 +139,8 @@ int main(void)
         }
 
         // Update player position based on movement
-        // position = Vector2Add(position, Vector2Scale(movement, 5.0f)); // Move at 5 pixels per frame
-        position = position + movement*5.0f;
+        
+        position = position + movement*tempSpeed;
         // Update animation
         
         if(isMoving){
@@ -129,23 +154,24 @@ int main(void)
                 if (currentFrame >= frameCount)
                     currentFrame = 0;
 
-                walk_front.x = currentFrame * SPRITE_DIM;
+                walk.x = currentFrame * SPRITE_DIM;
             }
         } else {
             // If not moving, reset to standing frame (e.g., first frame of animation)
             currentFrame = 0;
-            walk_front.x = currentFrame * SPRITE_DIM; // Stay on the standing frame
+            walk.x = currentFrame * SPRITE_DIM; // Stay on the standing frame
+            //walk.y = 0;
         }
         
 
 
-        // walk_front.x = 0;
+        // walk.x = 0;
         BeginDrawing();
         ClearBackground(RAYWHITE);
         
         BeginMode2D(camera);
         // DrawTextureEx(texture, 50, 50, );
-        DrawTextureRec(texture, walk_front, position, WHITE);
+        DrawTextureRec(texture, walk, position, WHITE);
         // DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 
         EndMode2D();
@@ -154,6 +180,8 @@ int main(void)
         ImGui::Begin("Debug");
         isImGuiHovered = ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered();
         ImGui::Text("ImGui is working!");
+        ImGui::SliderInt("frameSpeed", &frameSpeed, 1, 120);
+        ImGui::SliderFloat("movementSpeed", &tempSpeed, 0.f, 6.f);
         ImGui::End();
         rlImGuiEnd();
         
@@ -164,7 +192,18 @@ int main(void)
 #endif
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
+    
+    // Do close thinging here
+    char buffer[64] = {0};
+    snprintf(buffer, sizeof(buffer), "%d", frameSpeed);
+    rini_set_value_text(&config, "frameSpeed", buffer, "frame speed for the animation");
 
+    memset(buffer, 0, sizeof(buffer));
+    snprintf(buffer, sizeof(buffer), "%.4f", tempSpeed);
+    rini_set_value_text(&config, "movementSpeed", buffer,
+                        "movementSpeed speed for the character");
+    rini_save(config, "config.ini");
+    
     return 0;
 }
 
