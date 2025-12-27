@@ -54,19 +54,22 @@ int main(void)
     const int toolActionWidth = 96/2;
     const int toolActionHeight = 576/12;
     Rectangle workingSprite = {0,0, toolActionWidth, toolActionHeight};
-    Animation testanim = {
+    Animation testanim = Animation(actions, toolActionWidth, toolActionHeight,
+                                   5, 2, 20.f, 0.f, true, 12, 2);
+    
+    /*{
         actions,
         toolActionWidth,
         toolActionHeight,
         3,
         2,
-        .5f,
+        20.f,
         1.f,
         true,
         12,
         2,
 
-    };
+    };*/
 
     Camera2D camera = { 0 };
     camera.target = { screenWidth/2, screenHeight/2 };//position; // Camera will follow this point (e.g., player position)
@@ -101,7 +104,8 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         float dt = GetFrameTime();
-        UpdateAnimation(&testanim, dt);
+        //UpdateAnimation(&testanim, dt);
+        
         // Zoom based on mouse wheel
         float wheel = GetMouseWheelMove();
         Vector2 movement = {0, 0};
@@ -188,6 +192,7 @@ int main(void)
             //walk.y = 0;
         }
         
+        printf("niga\n");
 
 
         // walk.x = 0;
@@ -214,7 +219,9 @@ int main(void)
             
         }
 
-        DrawAnimation(&testanim, {50,50});
+        //DrawAnimation(&testanim, {50,50});
+        testanim.DrawAnimation({100, 50});
+        testanim.UpdateAnimation(dt);
 
         DrawTextureRec(texture, walk, position, WHITE);
         // DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);

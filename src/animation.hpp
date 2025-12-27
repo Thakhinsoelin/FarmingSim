@@ -1,8 +1,18 @@
 #pragma once
 #include "raylib.h"
 
+struct MyRect {
+  unsigned int x;
+  unsigned int y;
+  unsigned int width;
+  unsigned int height;
 
-struct Animation {
+  Rectangle convert() { return {(float)this->x, (float)this->y, (float)this->width, (float)this->height};
+  }
+};
+
+class Animation {
+public:
     Texture2D texture;       // The sprite sheet texture
     int frameWidth;          // Width of one frame in the sprite sheet
     int frameHeight;         // Height of one frame in the sprite sheet
@@ -13,6 +23,19 @@ struct Animation {
     bool loop;               // Should the animation loop when it reaches the end?
     int rows;                // Number of rows in the sprite sheet
     int columns;             // Number of columns in the sprite sheet
+
+    Animation(Texture2D texture, int frameWidth, int frameHeight,
+              int currentFrame, int totalFrames, float updateTime,
+              float elapsedTime, bool loop, int rows, int columns);
+
+    void UpdateAnimation(float deltaTime);
+    void DrawAnimation(Vector2 position);
+
+private:
+    int frameCounter = 0;
+    Rectangle src = {0};
+    int startFrame = 0;
+    int totalFramesToRender = 0;
 };
 
 void UpdateAnimation(Animation *anim, float deltaTime);
