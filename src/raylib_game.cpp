@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include <math.h>
 #include "animation.hpp"
+#include "tilemaploader.hpp"
 
 #define RINI_IMPLEMENTATION
 #include "rini.h"
@@ -72,6 +73,8 @@ int main(void)
         2,
 
     };*/
+    Texture2D background = LoadTexture("resources/sprites/Tilesets/Hills.png");
+    TileMap testTile = TileMap(&background, "resources/TileMap/mapped.tmj");
 
     Camera2D camera = { 0 };
     camera.target = { screenWidth/2, screenHeight/2 };//position; // Camera will follow this point (e.g., player position)
@@ -138,13 +141,13 @@ int main(void)
             
         }
         
-        if(IsKeyDown(KEY_T)) {
-            testanim.updateRecSelection(1, 2);
-        }
+        // if(IsKeyDown(KEY_T)) {
+        //     testanim.updateRecSelection(1, 2);
+        // }
 
-        if(IsKeyDown(KEY_R)) {
-            testanim.updateRecSelection(3, 2);
-        }
+        // if(IsKeyDown(KEY_R)) {
+        //     testanim.updateRecSelection(3, 2);
+        // }
 
         if (IsKeyDown(KEY_UP)) 
         {
@@ -167,32 +170,32 @@ int main(void)
           walk.y = SPRITE_DIM * 3;
         }
 
-        if (IsKeyDown(KEY_W)) {
-            testanim.updateRecSelection(5, 4);
-            testMovement.y -= 1 * dt;
-        }
+        // if (IsKeyDown(KEY_W)) {
+        //     testanim.updateRecSelection(5, 4);
+        //     testMovement.y -= 1 * dt;
+        // }
 
-        if (IsKeyDown(KEY_S)) {
-            testanim.updateRecSelection(1, 4);
-            testMovement.y += 1 * dt;
-        }
+        // if (IsKeyDown(KEY_S)) {
+        //     testanim.updateRecSelection(1, 4);
+        //     testMovement.y += 1 * dt;
+        // }
 
-        if (IsKeyDown(KEY_A)) {
-            testanim.updateRecSelection(9, 4);
-            testMovement.x -= 1 * dt;
-        }
+        // if (IsKeyDown(KEY_A)) {
+        //     testanim.updateRecSelection(9, 4);
+        //     testMovement.x -= 1 * dt;
+        // }
 
-        if (IsKeyDown(KEY_D)) {
-            testanim.updateRecSelection(13, 4);
-            testMovement.y += 1 * dt;
-        }
+        // if (IsKeyDown(KEY_D)) {
+        //     testanim.updateRecSelection(13, 4);
+        //     testMovement.y += 1 * dt;
+        // }
 
-        if(testMovement.x != 0 || testMovement.y != 0) {
-            testMovement = Vector2Normalize(testMovement);
-            testIsMoving = true;
-        } else {
-            testIsMoving = false;
-        }
+        // if(testMovement.x != 0 || testMovement.y != 0) {
+        //     testMovement = Vector2Normalize(testMovement);
+        //     testIsMoving = true;
+        // } else {
+        //     testIsMoving = false;
+        // }
 
         // Normalize movement vector to maintain constant speed (diagonal movement)
         if (movement.x != 0 || movement.y != 0)
@@ -208,14 +211,14 @@ int main(void)
         // Update player position based on movement
         
         position = position + movement*tempSpeed;
-        testPosition = testPosition + testMovement*2.f;
+        // testPosition = testPosition + testMovement*2.f;
         // Update animation
 
-        if(testIsMoving) {
-            testanim.UpdateAnimation(dt);
-        } else {
-            testanim.updateRecSelection(1, 4);
-        }
+        // if(testIsMoving) {
+        //     testanim.UpdateAnimation(dt);
+        // } else {
+        //     testanim.updateRecSelection(1, 4);
+        // }
         
         if(isMoving){
             frameCounter++;
@@ -243,7 +246,6 @@ int main(void)
         // walk.x = 0;
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        
         // // Check if the player is out of bounds in X or Y
         // if (position.x < camera.target.x - screenWidth/2 || position.x > camera.target.x + screenWidth/2 ||
         //     position.y < camera.target.y - screenHeight/2 || position.y > camera.target.y + screenHeight/2)
@@ -253,16 +255,17 @@ int main(void)
         // }
 
         BeginMode2D(camera);
+        testTile.draw();
         // DrawTextureEx(texture, 50, 50, );
-        for (int i = 0; i < screenWidth; i += grassWidth) {
-            for (int j = 0; j < screenHeight; j += grassHeight) {
-                grassPosition.y = j;
-                grassPosition.x = i;
-                DrawTextureRec(grass_temp, grass, grassPosition, WHITE);
+        // for (int i = 0; i < screenWidth; i += grassWidth) {
+        //     for (int j = 0; j < screenHeight; j += grassHeight) {
+        //         grassPosition.y = j;
+        //         grassPosition.x = i;
+        //         DrawTextureRec(grass_temp, grass, grassPosition, WHITE);
                 
-            }
+        //     }
             
-        }
+        // }
 
         // testanim.UpdateAnimation(dt);
         //DrawAnimation(&testanim, {50,50});
