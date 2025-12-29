@@ -3,6 +3,7 @@
 #include "imgui.h"    // NOTE: Declares global (extern) variables and screens functions
 #include "raymath.h"
 #include <math.h>
+#include <iostream>
 #include "animation.hpp"
 #include "tilemaploader.hpp"
 
@@ -18,6 +19,13 @@ static const float screenWidth = 800;
 static const float screenHeight = 450;
 static const float SPRITE_DIM = 192/4;
 
+
+enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+};
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -55,10 +63,10 @@ int main(void)
     const int toolActionWidth = 96/2;
     const int toolActionHeight = 576/12;
     Rectangle workingSprite = {0,0, toolActionWidth, toolActionHeight};
-    Animation testanim = Animation(texture, SPRITE_DIM, SPRITE_DIM,
-                                   1, 4, 8.f, 0.f, true, 4, 4);
+    Animation testanim = Animation(actions, toolActionWidth ,toolActionHeight,
+                                   7, 2, 20.f, 0.f, true, 4, 4);
     Vector2 testPosition = {100,50};
-    
+    bool chop = false;
     bool testIsMoving = false;
     /*{
         actions,
@@ -106,6 +114,7 @@ int main(void)
 
     
     
+        int currentDirection = UP;
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         float dt = GetFrameTime();
@@ -114,7 +123,7 @@ int main(void)
         // Zoom based on mouse wheel
         float wheel = GetMouseWheelMove();
         Vector2 movement = {0, 0};
-        Vector2 testMovement = {0, 0};
+        
         if (!isImGuiHovered && IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
             Vector2 delta = GetMouseDelta();
@@ -148,26 +157,48 @@ int main(void)
         // if(IsKeyDown(KEY_R)) {
         //     testanim.updateRecSelection(3, 2);
         // }
-
+        
         if (IsKeyDown(KEY_UP)) 
         {
           movement.y -= 1 * dt;
           walk.y = SPRITE_DIM;
+          currentDirection = UP;
         }
         if (IsKeyDown(KEY_DOWN)) 
         {
           movement.y += 1 * dt;
           walk.y = 0;
+          currentDirection = DOWN;
         }
         if (IsKeyDown(KEY_LEFT)) 
         {
           movement.x -= 1 * dt;
           walk.y = SPRITE_DIM*2;
+          currentDirection = LEFT;
         }
         if (IsKeyDown(KEY_RIGHT)) 
         {
           movement.x += 1 * dt;
           walk.y = SPRITE_DIM * 3;
+          currentDirection = RIGHT;
+        }
+
+        if(IsKeyDown(KeyboardKey::KEY_A)) {
+            chop = true;
+            // int nextStart = 0;
+            // int frameCount = 2;
+            // switch (currentDirection) {
+            // case UP:    nextStart = 3; break;
+            // case DOWN:  nextStart = 1; break;
+            // case LEFT:  nextStart = 5; break;
+            // case RIGHT: nextStart = 7; break;
+            // }
+            // std::cout << "Before updating: " << testanim.getStartFrame() << "\n";
+            // // ONLY update if the animation range has actually changed
+            // if (testanim.getStartFrame() != nextStart ) {
+            //     testanim.updateRecSelection(nextStart, frameCount);
+            // }
+            // std::cout << "After updating: " << testanim.getStartFrame() << "\n";
         }
 
         // if (IsKeyDown(KEY_W)) {
@@ -267,12 +298,18 @@ int main(void)
             
         // }
 
-        // testanim.UpdateAnimation(dt);
         //DrawAnimation(&testanim, {50,50});
-        testanim.DrawAnimation(testPosition);
+        // testanim.DrawAnimation(testPosition);
 
-
-        DrawTextureRec(texture, walk, position, WHITE);
+        //This draw main character
+            testanim.UpdateAnimation(dt);
+            // std::cout <<"Current: " << testanim.getStartFrame() <<"\n";
+        if(!chop) {
+            DrawTextureRec(texture, walk, position, WHITE);
+        } else {
+            testanim.DrawAnimation(position);
+            chop = false;
+        }
         // DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 
         EndMode2D();

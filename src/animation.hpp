@@ -31,6 +31,9 @@ public:
     void UpdateAnimation(float deltaTime);
     void DrawAnimation(Vector2 position);
     void updateRecSelection(int from, int until);
+    int getStartFrame() {
+      return startFrame;
+    }
 
 private:
     int frameCounter = 0;

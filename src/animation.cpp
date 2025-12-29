@@ -1,5 +1,5 @@
 #include "animation.hpp"
-
+#include <iostream>
 Animation::Animation(Texture2D texture, int frameWidth, int frameHeight,
                      int startFrame, int totalFrames, float updateTime,
                      float elapsedTime, bool loop, int rows, int columns) {
@@ -47,14 +47,19 @@ void Animation::UpdateAnimation(float deltaTime) {
             j++;
           }
 
-          if ((j * columns) + i == currentFrame) {
-            // std::cout << "i: " << i << "j: " << j << "currentFrame: " << currentFrame << "\n";
+          if ((j * columns) + i >= currentFrame) {
+            std::cout << "i: " << i << "j: " << j << "currentFrame: " << currentFrame << "\n";
             src.x = (i - 1) * frameWidth;
             src.y = j * frameHeight;
             break;
           }
           i++;
         }
+        // int column = currentFrame % columns;
+        // int row = currentFrame / columns;
+
+        // src.x = (float)column * frameWidth;
+        // src.y = (float)row * frameHeight;
         //currentFrame = (currentFrame + 1) % totalFrames;
         //int i = currentFrame % columns; // The remainder is your column
         //int j = currentFrame / rows; // The quotient is your row
@@ -65,7 +70,7 @@ void Animation::UpdateAnimation(float deltaTime) {
         //src.x = (i-1)*frameWidth;
         //src.y = j * frameHeight;
         // std::cout << "current Frame: " << currentFrame << "\n";
-        if (currentFrame >= startFrame+totalFrames-1) {
+        if (currentFrame == startFrame+totalFrames-1) {
           currentFrame = startFrame;
           // std::cout << "resetted the current Frame \n";
         } else {
@@ -88,6 +93,6 @@ void Animation::DrawAnimation(Vector2 position) {
 void Animation::updateRecSelection(int from, int until){
     this->startFrame = from;
     this->totalFrames = until;
-
+    this->frameCounter = 0;
     this->currentFrame = this->startFrame;
 };
