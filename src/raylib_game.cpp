@@ -2,10 +2,11 @@
 #include "rlImGui.h"
 #include "imgui.h"    // NOTE: Declares global (extern) variables and screens functions
 #include "raymath.h"
+#include <cstring>
 #include <math.h>
-#include <iostream>
 #include "animation.hpp"
 #include "tilemaploader.hpp"
+#include "objects.hpp"
 
 #define RINI_IMPLEMENTATION
 #include "rini.h"
@@ -29,7 +30,11 @@ enum Direction {
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-
+void generateRandomPositions(std::vector<Vector2> &storage, int amountOfPositionsToWrite, int boundX, int boundY) {
+    const int tempX = GetRandomValue(0, boundX);
+    const int tempY = GetRandomValue(0, boundY);
+    storage.push_back({(float)tempX, (float)tempY});
+}
 //----------------------------------------------------------------------------------
 // Program main entry point
 //----------------------------------------------------------------------------------
@@ -68,23 +73,36 @@ int main(void)
     Vector2 testPosition = {100,50};
     bool chop = false;
     bool testIsMoving = false;
+    std::vector<Object> interactable;
+    Object pickaxe = Object("pickaxe", 100, 1000, position, false);
+    
 
 
     Texture2D biomis = LoadTexture("resources/sprites/Objects/Basic_Grass_Biom_things.png");
+    const int treeWidth = 32;
+    const int treeHeight = 32;
+    Rectangle treeSelector = {16,0, treeWidth, treeHeight};
+    std::vector<Vector2> randomPositions;
+    
 
-    /*{
-        actions,
-        toolActionWidth,
-        toolActionHeight,
-        3,
-        2,
-        20.f,
-        1.f,
-        true,
-        12,
-        2,
 
-    };*/
+
+    Texture2D chicken = LoadTexture("resources/sprites/Characters/Chicken.png");
+    const int chickenWidth = 16;
+    const int chickenHeight = 16;
+    Rectangle chickenSelector = {0,0, chickenWidth, chickenHeight};
+    std::vector<Vector2> chickenPositions;
+    generateRandomPositions(chickenPositions, 10, screenWidth, screenHeight);
+
+    for(int i = 0; i < 3; i++){
+        const int tempX = GetRandomValue(0, screenWidth);
+        const int tempY = GetRandomValue(0, screenHeight);
+        randomPositions.push_back({(float)tempX, (float)tempY});
+        Vector2 tempp = {(float)tempX, (float)tempY};
+        Object temp = Object("tree", 0, 1000, tempp, true);
+        interactable.push_back(temp);
+    }
+
     Texture2D background = LoadTexture("resources/sprites/Tilesets/Hills.png");
     TileMap testTile = TileMap(&background, "resources/TileMap/mapped.tmj");
 
@@ -203,6 +221,20 @@ int main(void)
              if (testanim.getStartFrame() != nextStart ) {
                  testanim.updateRecSelection(nextStart, frameCount);
              }
+            
+            // start to check the bounds with interactables
+            for ( auto& i : interactable) {
+
+                if(CheckCollisionRecs({position.x, position.y, SPRITE_DIM, SPRITE_DIM}, {i.position.x, i.position.y, treeWidth, treeHeight}))
+                {
+                        if (i.canBeAttacked) {
+                        i.health -= pickaxe.dps * dt;
+                        if (i.health <= 0) {
+                            i.gone = true;
+                        }
+                    }
+                }
+            }
              //std::cout << "After updating: " << testanim.getStartFrame() << "\n";
         }
 
@@ -292,6 +324,16 @@ int main(void)
 
         BeginMode2D(camera);
         testTile.draw();
+        for (int i = 0; i < interactable.size(); i++) {
+            if(!interactable[i].gone) DrawTextureRec(biomis,treeSelector,randomPositions[i],WHITE);
+        }
+
+        // for (const Vector2& i : chickenPositions) {
+        //     printf("%f, %f\n",i.x, i.y);
+        //     DrawTextureRec(chicken,chickenSelector,i,WHITE);
+        // }
+
+
         // DrawTextureEx(texture, 50, 50, );
         // for (int i = 0; i < screenWidth; i += grassWidth) {
         //     for (int j = 0; j < screenHeight; j += grassHeight) {
