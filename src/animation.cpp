@@ -95,4 +95,7 @@ void Animation::updateRecSelection(int from, int until){
     this->totalFrames = until;
     this->frameCounter = 0;
     this->currentFrame = this->startFrame;
+    src.x = 0;
+    src.y = 0;
+    
 };

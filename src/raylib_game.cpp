@@ -64,10 +64,14 @@ int main(void)
     const int toolActionHeight = 576/12;
     Rectangle workingSprite = {0,0, toolActionWidth, toolActionHeight};
     Animation testanim = Animation(actions, toolActionWidth ,toolActionHeight,
-                                   7, 2, 20.f, 0.f, true, 4, 4);
+                                   7, 2, 20.f, 0.f, true, 12, 2);
     Vector2 testPosition = {100,50};
     bool chop = false;
     bool testIsMoving = false;
+
+
+    Texture2D biomis = LoadTexture("resources/sprites/Objects/Basic_Grass_Biom_things.png");
+
     /*{
         actions,
         toolActionWidth,
@@ -118,6 +122,7 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         float dt = GetFrameTime();
+      testanim.UpdateAnimation(dt);
         //UpdateAnimation(&testanim, dt);
         
         // Zoom based on mouse wheel
@@ -185,20 +190,20 @@ int main(void)
 
         if(IsKeyDown(KeyboardKey::KEY_A)) {
             chop = true;
-            // int nextStart = 0;
-            // int frameCount = 2;
-            // switch (currentDirection) {
-            // case UP:    nextStart = 3; break;
-            // case DOWN:  nextStart = 1; break;
-            // case LEFT:  nextStart = 5; break;
-            // case RIGHT: nextStart = 7; break;
-            // }
-            // std::cout << "Before updating: " << testanim.getStartFrame() << "\n";
-            // // ONLY update if the animation range has actually changed
-            // if (testanim.getStartFrame() != nextStart ) {
-            //     testanim.updateRecSelection(nextStart, frameCount);
-            // }
-            // std::cout << "After updating: " << testanim.getStartFrame() << "\n";
+             int nextStart = 0;
+             int frameCount = 2;
+             switch (currentDirection) {
+             case UP:    nextStart = 3; break;
+             case DOWN:  nextStart = 1; break;
+             case LEFT:  nextStart = 5; break;
+             case RIGHT: nextStart = 7; break;
+             }
+             //std::cout << "Before updating: " << testanim.getStartFrame() << "\n";
+             // ONLY update if the animation range has actually changed
+             if (testanim.getStartFrame() != nextStart ) {
+                 testanim.updateRecSelection(nextStart, frameCount);
+             }
+             //std::cout << "After updating: " << testanim.getStartFrame() << "\n";
         }
 
         // if (IsKeyDown(KEY_W)) {
@@ -302,11 +307,11 @@ int main(void)
         // testanim.DrawAnimation(testPosition);
 
         //This draw main character
-            testanim.UpdateAnimation(dt);
             // std::cout <<"Current: " << testanim.getStartFrame() <<"\n";
         if(!chop) {
             DrawTextureRec(texture, walk, position, WHITE);
         } else {
+            
             testanim.DrawAnimation(position);
             chop = false;
         }
