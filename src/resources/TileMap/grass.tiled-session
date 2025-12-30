@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "test.tsx",
+    "activeFile": "mapped.tmx",
     "expandedProjectPaths": [
         ".",
         "C:/dev/c++proj/FarmingSim/src/resources/sprites/Tilesets"
@@ -14,6 +14,14 @@
             "dynamicWrapping": false,
             "scaleInDock": 1.5,
             "scaleInEditor": 4
+        },
+        "mapped.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 240.66666666666663,
+                "y": 182
+            }
         },
         "test.tsx": {
             "scaleInDock": 1.5,
@@ -29,12 +37,14 @@
     "map.width": 60,
     "openFiles": [
         "ground.tsx",
-        "test.tsx"
+        "test.tsx",
+        "mapped.tmx"
     ],
     "project": "grass.tiled-project",
     "recentFiles": [
         "ground.tsx",
-        "test.tsx"
+        "test.tsx",
+        "mapped.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
